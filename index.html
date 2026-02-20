@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1-Day Tech Talks Event</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #0056b3;
+            text-align: center;
+        }
+        .search-container {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .search-container input {
+            padding: 10px;
+            width: 70%;
+            max-width: 400px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .schedule-item {
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+        .schedule-item.break {
+            background-color: #e0f7fa;
+            color: #00796b;
+            font-style: italic;
+            text-align: center;
+            justify-content: center;
+        }
+        .schedule-item .time {
+            font-weight: bold;
+            color: #0056b3;
+            margin-bottom: 5px;
+            font-size: 1.1em;
+        }
+        .schedule-item .title {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+        .schedule-item .speakers {
+            color: #555;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+        .schedule-item .category {
+            font-size: 0.8em;
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+        .schedule-item .description {
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+        .no-results {
+            text-align: center;
+            color: #888;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>1-Day Tech Talks Event</h1>
+        <h2>Schedule</h2>
+
+        <div class="search-container">
+            <input type="text" id="categorySearch" placeholder="Search by category (e.g., AI, Frontend)">
+        </div>
+
+        <div id="schedule">
+            <!-- Schedule items will be loaded here by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        const talksData = [
+            {
+                title: "Introduction to Generative AI",
+                speakers: ["Dr. Ada Lovelace"],
+                category: ["AI", "Machine Learning"],
+                duration: 60,
+                description: "An overview of the latest advancements in generative AI, covering models like GANs and Transformers and their applications."
+            },
+            {
+                title: "Microservices with Node.js and GraphQL",
+                speakers: ["John Doe", "Jane Smith"],
+                category: ["Backend", "Node.js", "GraphQL"],
+                duration: 60,
+                description: "Building scalable microservices architectures using Node.js and exposing data through GraphQL APIs."
+            },
+            {
+                title: "Frontend Performance Optimization Techniques",
+                speakers: ["Alice Wonderland"],
+                category: ["Frontend", "Performance", "Web Development"],
+                duration: 60,
+                description: "Deep dive into techniques for optimizing web performance, including lazy loading, code splitting, and critical CSS."
+            },
+            {
+                title: "Securing Your Cloud Native Applications",
+                speakers: ["Bob The Builder"],
+                category: ["Security", "Cloud", "DevOps"],
+                duration: 60,
+                description: "Best practices and tools for securing applications deployed in cloud-native environments."
+            },
+            {
+                title: "Data Streaming with Apache Kafka",
+                speakers: ["Charlie Chaplin"],
+                category: ["Data Engineering", "Big Data"],
+                duration: 60,
+                description: "Understanding and implementing real-time data streaming solutions using Apache Kafka."
+            },
+            {
+                title: "UX Design Principles for Developers",
+                speakers: ["Diana Prince"],
+                category: ["UX", "Design", "Frontend"],
+                duration: 60,
+                description: "Essential UX design principles that every developer should know to build user-friendly applications."
+            }
+        ];
+
+        const scheduleDiv = document.getElementById('schedule');
+        const categorySearchInput = document.getElementById('categorySearch');
+
+        function formatTime(date) {
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+        }
+
+        function renderSchedule(filterCategory = '') {
+            scheduleDiv.innerHTML = ''; // Clear previous schedule
+            let currentTime = new Date();
+            currentTime.setHours(10, 0, 0, 0); // Event starts at 10:00 AM
+
+            let talkIndex = 0;
+            const filteredTalks = talksData.filter(talk =>
+                filterCategory === '' ||
+                talk.category.some(cat => cat.toLowerCase().includes(filterCategory.toLowerCase()))
+            );
+
+            if (filteredTalks.length === 0 && filterCategory !== '') {
+                scheduleDiv.innerHTML = '<p class="no-results">No talks found for this category.</p>';
+                return;
+            }
+
+            for (let i = 0; i < 6; i++) { // Loop for 6 talks
+                // Add talk if available
+                if (talkIndex < filteredTalks.length) {
+                    const talk = filteredTalks[talkIndex];
+                    const talkEndTime = new Date(currentTime.getTime() + talk.duration * 60 * 1000);
+
+                    const talkElement = document.createElement('div');
+                    talkElement.classList.add('schedule-item');
+                    talkElement.innerHTML = `
+                        <div class="time">${formatTime(currentTime)} - ${formatTime(talkEndTime)}</div>
+                        <div class="title">${talk.title}</div>
+                        <div class="speakers">Speakers: ${talk.speakers.join(', ')}</div>
+                        <div class="category">Category: ${talk.category.join(', ')}</div>
+                        <div class="description">${talk.description}</div>
+                    `;
+                    scheduleDiv.appendChild(talkElement);
+
+                    currentTime = new Date(talkEndTime.getTime());
+                    talkIndex++;
+                }
+
+                // Add transition after talks (not after the last one or before lunch)
+                if (i < 5) { // 5 transitions needed for 6 talks
+                    if (talkIndex === 3) { // After 3rd talk, it's lunch
+                        const lunchEndTime = new Date(currentTime.getTime() + 60 * 60 * 1000); // 1 hour lunch
+                        const lunchElement = document.createElement('div');
+                        lunchElement.classList.add('schedule-item', 'break');
+                        lunchElement.innerHTML = `<div class="time">${formatTime(currentTime)} - ${formatTime(lunchEndTime)}</div><div>Lunch Break</div>`;
+                        scheduleDiv.appendChild(lunchElement);
+                        currentTime = new Date(lunchEndTime.getTime());
+                    } else { // Regular transition
+                        const transitionEndTime = new Date(currentTime.getTime() + 10 * 60 * 1000); // 10 min transition
+                        const transitionElement = document.createElement('div');
+                        transitionElement.classList.add('schedule-item', 'break');
+                        transitionElement.innerHTML = `<div class="time">${formatTime(currentTime)} - ${formatTime(transitionEndTime)}</div><div>Transition</div>`;
+                        scheduleDiv.appendChild(transitionElement);
+                        currentTime = new Date(transitionEndTime.getTime());
+                    }
+                }
+            }
+        }
+
+        // Initial render
+        renderSchedule();
+
+        // Search functionality
+        categorySearchInput.addEventListener('keyup', (event) => {
+            renderSchedule(event.target.value.trim());
+        });
+    </script>
+</body>
+</html>
